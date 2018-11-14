@@ -1,0 +1,14 @@
+type Query {
+  things: [Thing]
+  thing(id: Int!): Thing!
+  comments: [Comment]
+}
+
+type Mutation {
+  createComment(thingId: Int!, body: String!): Comment
+}
+
+schema {
+  query: Query,
+  mutation: Mutation
+}

@@ -1,0 +1,12 @@
+{
+    "presets": [
+      "env"
+    ],
+    "plugins": [
+      ["transform-import-to-read-file-sync", {
+        "test": "\\.graphql$",
+        "options": "utf8"
+      }],
+      "transform-object-rest-spread"
+    ]
+  }

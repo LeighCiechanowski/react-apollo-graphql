@@ -1,0 +1,52 @@
+version: '2.3'
+
+services:
+  scaffold-graph:
+    environment:
+      - PORT=4000
+      - NODE_ENV=production
+      - BLOG_API_URL=http://scaffold-graph-mountebank:5001
+      - COMMENTS_URL=http://scaffold-graph-mountebank:5001
+      - TEST_MODE=true
+    build:
+      context: .
+    command: npm start
+    image: scaffold-graph
+    container_name: scaffold-graph
+    volumes:
+      - /node_modules
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: ["CMD", "echo", ">", "/dev/tcp/localhost/4000", "||", "exit", "1"]
+      interval: 2s
+      timeout: 30s
+      retries: 10
+
+  scaffold-graph-mountebank:
+    build:
+      context: .
+      dockerfile: Dockerfile.mountebank
+    command: npm run start:mountebank
+    image: scaffold-graph-mountebank
+    container_name: scaffold-graph-mountebank
+    ports:
+      - "5001:5001"
+    healthcheck:
+      test: ["CMD", "echo", ">", "/dev/tcp/localhost/5001", "||", "exit", "1"]
+      interval: 2s
+      timeout: 30s
+      retries: 10
+
+  scaffold-graph-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+    command: npm test
+    image: scaffold-graph-tests
+    container_name: scaffold-graph-tests
+    depends_on:
+      scaffold-graph-mountebank:
+        condition: service_healthy
+      scaffold-graph:
+        condition: service_healthy

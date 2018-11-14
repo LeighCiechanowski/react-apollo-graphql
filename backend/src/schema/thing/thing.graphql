@@ -1,0 +1,8 @@
+type Thing {
+  id: Int!
+  title: String!
+  headline: String!
+  body: String!
+  comments: [Comment],
+  commentsCount: Int
+}
