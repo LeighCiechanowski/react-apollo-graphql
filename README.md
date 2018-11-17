@@ -4,9 +4,9 @@
 
 ---
 
-# My Example React - Apollo - GraphQL App
+# Example React - Apollo - GraphQL App
 
-An example starter application for a a React / Apollo Client project & an example GraphQL server implementation.
+An example starter application for a React / Apollo Client project & an example GraphQL server implementation.
 
 ## Apollo Client
 
@@ -31,31 +31,37 @@ This repo contains both the front and backend implementations.
 ---
 # Front End
 
-bla bla
-
 ## Get Started
 
 1. **Initial Machine Setup**
 
     First time running the starter kit? Then complete the [Initial Machine Setup](#initial-machine-setup).
 
-2. **Clone the project**
+2. **Run the example app**
 
-    `git clone https://github.com/LeighCiechanowski/scaffold-react-apollo.git`.
+    First start the backend GraphQL service:
 
-4. **Run the example app**
+   `cd backend`
 
-    First clone the example GraphQL server found here TODO insert link to graphql server repo
+   `npm run dev`
+
+   Then in a new terminal:
+
+    `cd frontend`
 
     `npm start -s`
 
     This will run the automated build process, start up a webserver, and open the application in your default browser. When doing development with this kit, this command will continue watching all your files. Every time you hit save the code is rebuilt, linting runs, and tests run automatically. Note: The -s flag is optional. It enables silent mode which suppresses unnecessary messages during the build.
 
-5. **Main Areas of interest.**
+3. **Have a poke around with the app**
 
     ***Queries***
 
+    The homepage renders the Feed component, this components parent is an Apollo client Query component which will execute the feed-query against the GraphQL. On succesful execution of this query the returned data will be available on the props of the Feed component and render.
 
+   ***Mutations***
+
+    Clicking on a 'thing' title will navigate the user to the Thing component, this follows the same pattern as above using an Apollo Client Query component to execute a GraphQL query and making the data avaiable on the props. This component also has a function that is passed down to the Thing component which defines what happens when a comment is created. This is used so that we can update the Apollo Client cache and mutations will be reflected in the UI. We could also have used the [refecthQueries](https://www.apollographql.com/docs/react/essentials/mutations.html#props) function, however this approach means that the create comment mutation component is much more reusable and can easily be used elsewhere in the project and perform different opertaions on successful creation of comments and saves tripes to the server.
 
 ## Initial Machine Setup
 
@@ -156,4 +162,71 @@ The starter kit includes a working example app that puts all of the above to use
 ---
 # Back End
 
-Backend bla bla
+This GraphQL server is based of my example GraphQL server
+
+Here is tha background on this:
+
+This starter kit came from the result of building a GraphQL server layer as part of a micro-services platform for one of my clients.
+
+The GraphQL server sat above many downstream services (such as articles, comments, reactions, employees etc.) and orchestrated calls to these downstream services. This allowed for a very clean and flexible api for clients to integrate with.
+
+This starter kit is a very stripped back example, just enough to get started building your own GraphQL server instance including a framework to run your own integration test using [Mountebank](http://www.mbtest.org) to mock downstream services.
+
+### Production Ready?
+
+What I mean when I say production ready is that this starter kit contains the basics that will be required to run this in a production environment. Which basically means that you can easily write tests to verify that it works as expected. Going on from this I would encourage you to look into layering fault tolerance, circuit breaking and caching on top of this basic starter kit.
+
+## Setting Up
+1. Clone the repo.
+2. `npm install`
+
+To run the project in development mode, use `npm run dev`. The local endpoint is `http://localhost:3005/`.
+
+To build the project for production, use `npm run build`.
+
+## Tests
+With Docker installed, use `docker-compose up --build` to run the tests. 
+
+For more information on tests, see the test wiki page.
+
+## Sending GraphQL Queries
+
+Try hitting the GraphQL server with Postman.
+
+
+Post the following to `http://localhost:3005/`
+
+To get thing with ID 1 and all it's comments
+
+```javascript
+{
+   "query": "query { thing(id: 1) { id, title, body, comments { id, body } } }"
+}
+```
+
+To post a comment to blog id 1
+```javascript
+{
+	"query": "mutation { createComment(thingId: 1, body: \"test comment\") { id, body }}"
+}
+```
+## Architecture
+To give you some context here is how this GraphQL server instance would fit into a wider microservices based platform.
+
+![example architecture](https://user-images.githubusercontent.com/410358/39463380-99b19e2a-4d0f-11e8-8b79-8a91622c9a5a.png)
+
+## Resolving Queries to Downstream Services
+
+Below illustrates how the GraphQL server intelligently resolves queries to different downstream services. Only requesting data from services as and when required.
+
+### Example Request Querying for Article Details
+
+GraphQL resolves this query and only initiates a single request to the Article Service
+
+![Resolves query to one service](https://user-images.githubusercontent.com/410358/39463358-7017d110-4d0f-11e8-998b-5506de5ef563.png)
+
+### Example Request Querying for a Full Fat Article (Includes comments)
+
+GraphQL resolves this query by initiating calls to multiple downstream services and returns a fuller Article response that includes an Articles Comments.
+
+![Resolves query to one service](https://user-images.githubusercontent.com/410358/39463375-95279b02-4d0f-11e8-8d51-811e1c26c71c.png)
